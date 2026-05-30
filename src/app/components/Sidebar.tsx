@@ -15,16 +15,17 @@ export function Sidebar({ totalShows, totalBands, totalCities, activePage = 'fly
     <aside className="w-full lg:w-[280px] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-6 flex flex-col gap-6 border-b lg:border-r lg:border-b-0 border-[var(--theme-border)] overflow-y-auto lg:h-screen lg:sticky lg:top-0 transition-colors">
       <div className="text-3xl font-['Bebas_Neue'] tracking-wider">Concerts</div>
 
-      <div className="w-full aspect-square rounded-lg overflow-hidden border-2 border-[var(--theme-accent-dim)]">
-        <ImageWithFallback
-          src="https://placecats.com/300/200"
-          alt="Profile"
-          className="w-full h-full object-cover"
-        />
-      </div>
+      <div className="w-full rounded-lg overflow-hidden border-2 border-[var(--theme-accent-dim)]">
+  <ImageWithFallback
+      src="https://placecats.com/300/200"
+    alt="Wes"
+    className="w-full h-auto object-cover"
+  />
+</div>
+
 
       <div>
-        <div className="text-xl font-['Bebas_Neue'] tracking-wider mb-2">NICKNAME</div>
+        <div className="text-xl font-['Bebas_Neue'] tracking-wider mb-2">WES</div>
         <p className="text-sm text-[var(--theme-text-secondary)] font-['DM_Sans'] leading-relaxed">
           i believe with all my heart that we cannot become better version of ourselves without going through something terrible
         </p>
