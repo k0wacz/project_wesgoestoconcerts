@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <script>
-      window.location.href = '/project_wesgoestoconcerts/' + window.location.pathname.split('/project_wesgoestoconcerts/')[1];
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      var redirect = path.slice('/project_wesgoestoconcerts'.length) + search + hash;
+      sessionStorage.setItem('redirect', redirect || '/');
+      window.location.replace('/project_wesgoestoconcerts/');
     </script>
   </head>
 </html>
