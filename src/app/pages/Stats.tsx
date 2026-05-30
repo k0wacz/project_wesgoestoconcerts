@@ -1,15 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
 import { Sidebar } from '../components/Sidebar';
 import { concerts } from '../data/concerts';
 import { useTheme } from '../contexts/ThemeContext';
 
-// Registrar componentes do Chart.js
 Chart.register(...registerables);
 
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
-// Helpers
 function parsePrice(s: string): number {
   if (!s) return 0;
   return parseFloat(s.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
@@ -28,7 +26,6 @@ export function Stats() {
   const chartMonthsRef = useRef<HTMLCanvasElement>(null);
   const chartCumulativeRef = useRef<HTMLCanvasElement>(null);
 
-  // Colors dinâmicas baseadas no tema
   const ACCENT = theme === 'dark' ? '#c8ff00' : '#9fd600';
   const ACCENT_ALT = theme === 'dark' ? '#1c3800' : '#d4e87c';
   const ACCENT_BORDER = theme === 'dark' ? '#2d5500' : '#88b000';
@@ -40,23 +37,19 @@ export function Stats() {
     : ['#9fd600', '#88b000', '#719900', '#5a7d00', '#446000', '#2e4300', '#1d2b00', '#111800'];
 
   useEffect(() => {
-    // Processar dados
     const prices = concerts.map(s => parsePrice(s.average_price));
     const dates = concerts.map(s => parseDate(s.date));
     const total = prices.reduce((a, b) => a + b, 0);
     const avg = total / concerts.length;
 
-    // Bandas únicas
     const bandCount: Record<string, number> = {};
     concerts.forEach(s => s.bands.forEach(b => {
       bandCount[b] = (bandCount[b] || 0) + 1;
     }));
-    const uniqueBands = Object.keys(bandCount).length;
+    const uniqueBands = new Set(concerts.flatMap(c => c.bands).map(b => b.toLowerCase().trim())).size;
 
-    // Show mais caro
     const maxIdx = prices.indexOf(Math.max(...prices));
 
-    // Por ano
     const byYear: Record<number, number> = {};
     concerts.forEach((s, i) => {
       const y = dates[i].year;
@@ -64,14 +57,12 @@ export function Stats() {
     });
     const years = Object.keys(byYear).sort().map(Number);
 
-    // Por gênero
     const genreCount: Record<string, number> = {};
     concerts.forEach(s => s.genre.forEach(g => {
       genreCount[g] = (genreCount[g] || 0) + 1;
     }));
     const topGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]);
 
-    // Por venue
     const venueCount: Record<string, number> = {};
     concerts.forEach(s => {
       const v = s.venue || '?';
@@ -79,13 +70,11 @@ export function Stats() {
     });
     const topVenues = Object.entries(venueCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
-    // Por mês
     const byMonth = Array(12).fill(0);
     concerts.forEach((s, i) => {
       byMonth[dates[i].month - 1]++;
     });
 
-    // Gasto acumulado
     const sortedShows = concerts.map((s, i) => ({ ...s, price: prices[i], ...dates[i] }))
       .sort((a, b) => a.year * 10000 + a.month * 100 + a.day - (b.year * 10000 + b.month * 100 + b.day));
     let cum = 0;
@@ -97,16 +86,18 @@ export function Stats() {
       cumData.push(Math.round(cum));
     });
 
-    // KPIs
+    const minYear = Math.min(...dates.map(d => d.year));
+    const maxYear = Math.max(...dates.map(d => d.year));
+    const yearsSpan = maxYear - minYear;
+
     const kpis = [
-      { label: 'Total gasto', value: `R$ ${Math.round(total).toLocaleString('pt-BR')}`, sub: 'em 15 anos' },
-      { label: 'Shows', value: concerts.length, sub: '2010 → 2025' },
+      { label: 'Total gasto', value: `R$ ${Math.round(total).toLocaleString('pt-BR')}`, sub: `em ${yearsSpan} anos` },
+      { label: 'Shows', value: concerts.length, sub: `${minYear} → ${maxYear}` },
       { label: 'Bandas únicas', value: uniqueBands, sub: 'ao vivo' },
       { label: 'Ticket médio', value: `R$ ${Math.round(avg).toLocaleString('pt-BR')}`, sub: 'por show' },
       { label: 'Show mais caro', value: `R$ ${Math.round(Math.max(...prices)).toLocaleString('pt-BR')}`, sub: concerts[maxIdx].bands[0] },
     ];
 
-    // Renderizar KPIs
     const kpiGrid = document.getElementById('kpi-grid');
     if (kpiGrid) {
       kpiGrid.innerHTML = '';
@@ -130,18 +121,15 @@ export function Stats() {
       });
     }
 
-    // Total badge
     const totalBadge = document.getElementById('total-badge');
     if (totalBadge) {
       totalBadge.textContent = `total: R$ ${Math.round(total).toLocaleString('pt-BR')}`;
     }
 
-    // Configuração padrão dos charts
     const gridOpts = { color: GRID_CLR, lineWidth: 0.5 };
     const tickStyle = { color: MUTED };
     const borderStyle = { color: theme === 'dark' ? '#1e1e1e' : '#d0d0d0' };
 
-    // Chart 1: Gasto por ano
     if (chartSpendYearRef.current) {
       new Chart(chartSpendYearRef.current, {
         type: 'bar',
@@ -159,11 +147,7 @@ export function Stats() {
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => ` R$ ${ctx.parsed.y.toLocaleString('pt-BR')}`
-              }
-            }
+            tooltip: { callbacks: { label: (ctx) => ` R$ ${ctx.parsed.y.toLocaleString('pt-BR')}` } }
           },
           scales: {
             x: { grid: gridOpts, ticks: { ...tickStyle, autoSkip: false }, border: borderStyle },
@@ -173,17 +157,12 @@ export function Stats() {
       });
     }
 
-    // Chart 2: Gêneros (doughnut)
     const topG = topGenres.slice(0, 7);
     const otherCount = topGenres.slice(7).reduce((a, b) => a + b[1], 0);
     const gLabels = topG.map(g => g[0]);
     const gData = topG.map(g => g[1]);
-    if (otherCount > 0) {
-      gLabels.push('outros');
-      gData.push(otherCount);
-    }
+    if (otherCount > 0) { gLabels.push('outros'); gData.push(otherCount); }
 
-    // Genre legend
     const legendEl = document.getElementById('genre-legend');
     if (legendEl) {
       const mutedText = theme === 'dark' ? '#555' : '#888';
@@ -217,17 +196,12 @@ export function Stats() {
           cutout: '65%',
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => ` ${ctx.label}: ${ctx.parsed}x`
-              }
-            }
+            tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}x` } }
           }
         }
       });
     }
 
-    // Chart 3: Venues
     if (chartVenuesRef.current) {
       new Chart(chartVenuesRef.current, {
         type: 'bar',
@@ -246,11 +220,7 @@ export function Stats() {
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => ` ${ctx.parsed.x} show${ctx.parsed.x > 1 ? 's' : ''}`
-              }
-            }
+            tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.x} show${ctx.parsed.x > 1 ? 's' : ''}` } }
           },
           scales: {
             x: { grid: gridOpts, ticks: { ...tickStyle, stepSize: 1 }, border: borderStyle },
@@ -260,7 +230,6 @@ export function Stats() {
       });
     }
 
-    // Ranking de bandas
     const topBands = Object.entries(bandCount).sort((a, b) => b[1] - a[1]).filter(b => b[1] > 1).slice(0, 10);
     const maxBandCount = topBands[0]?.[1] || 1;
     const rankingEl = document.getElementById('bands-ranking');
@@ -286,7 +255,6 @@ export function Stats() {
       });
     }
 
-    // Chart 4: Sazonalidade
     if (chartMonthsRef.current) {
       new Chart(chartMonthsRef.current, {
         type: 'bar',
@@ -308,11 +276,7 @@ export function Stats() {
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => ` ${ctx.parsed.y} show${ctx.parsed.y !== 1 ? 's' : ''}`
-              }
-            }
+            tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.y} show${ctx.parsed.y !== 1 ? 's' : ''}` } }
           },
           scales: {
             x: { grid: { display: false }, ticks: { ...tickStyle, autoSkip: false }, border: borderStyle },
@@ -323,35 +287,6 @@ export function Stats() {
     }
 
     // Heatmap
-    const allYears = [...new Set(dates.map(d => d.year))].sort((a, b) => a - b);
-    const heatData: Record<string, number> = {};
-    concerts.forEach((s, i) => {
-      const key = `${dates[i].year}-${dates[i].month}`;
-      heatData[key] = (heatData[key] || 0) + 1;
-    });
-
-    const table = document.getElementById('heatmap');
-    if (table) {
-      const mutedText = theme === 'dark' ? '#555' : '#888';
-      const cellBg = theme === 'dark' ? '#141414' : '#fafafa';
-      const cellBorder = theme === 'dark' ? '#1a1a1a' : '#e0e0e0';
-      const heatColors = theme === 'dark'
-        ? {
-            level1: { bg: '#1a3300', border: '#243d00' },
-            level2: { bg: '#2d5500', border: '#3a6b00' },
-            level3: { bg: '#4a8800', border: '#5ca800' },
-            level4: { bg: '#6db300', border: ACCENT }
-          }
-        : {
-            level1: { bg: '#e8f5d0', border: '#d0e8a8' },
-            level2: { bg: '#d4e87c', border: '#c0db60' },
-            level3: { bg: '#b8d64a', border: '#a8c840' },
-            level4: { bg: '#9fd600', border: '#88b000' }
-          };
-
-      table.innerHTML = '';
-      
-// Heatmap
     const allYears = [...new Set(dates.map(d => d.year))].sort((a, b) => a - b);
     const heatData: Record<string, number> = {};
     concerts.forEach((s, i) => {
@@ -397,35 +332,24 @@ export function Stats() {
       const tbody = document.createElement('tbody');
       allYears.forEach(y => {
         const tr = document.createElement('tr');
-
         const yearTh = document.createElement('th');
         yearTh.textContent = String(y);
         yearTh.style.cssText = `text-align:right; padding-right:8px; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.08em; color:${mutedText}; font-weight:400; white-space:nowrap;`;
         tr.appendChild(yearTh);
-
         for (let m = 1; m <= 12; m++) {
           const td = document.createElement('td');
           td.style.cssText = `height:20px; border-radius:3px; text-align:center; font-size:9px; color:transparent; cursor:default; transition:border-color 0.15s; background:${cellBg}; border:1px solid ${cellBorder};`;
-
           const val = heatData[`${y}-${m}`] || 0;
           if (val > 0) {
             let color = heatColors.level1;
             if (val >= 4) color = heatColors.level4;
             else if (val >= 3) color = heatColors.level3;
             else if (val >= 2) color = heatColors.level2;
-
             td.style.background = color.bg;
             td.style.borderColor = color.border;
             td.title = `${MONTHS[m - 1]} ${y}: ${val} show${val > 1 ? 's' : ''}`;
-
-            td.onmouseenter = () => {
-              td.style.borderColor = ACCENT;
-              td.style.color = ACCENT;
-            };
-            td.onmouseleave = () => {
-              td.style.borderColor = color.border;
-              td.style.color = 'transparent';
-            };
+            td.onmouseenter = () => { td.style.borderColor = ACCENT; td.style.color = ACCENT; };
+            td.onmouseleave = () => { td.style.borderColor = color.border; td.style.color = 'transparent'; };
           }
           tr.appendChild(td);
         }
@@ -434,7 +358,6 @@ export function Stats() {
       table.appendChild(tbody);
     }
 
-    // Chart 5: Acumulado
     if (chartCumulativeRef.current) {
       const fillColor = theme === 'dark' ? 'rgba(200,255,0,0.04)' : 'rgba(159,214,0,0.08)';
       new Chart(chartCumulativeRef.current, {
@@ -458,11 +381,7 @@ export function Stats() {
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => ` R$ ${ctx.parsed.y.toLocaleString('pt-BR')}`
-              }
-            }
+            tooltip: { callbacks: { label: (ctx) => ` R$ ${ctx.parsed.y.toLocaleString('pt-BR')}` } }
           },
           scales: {
             x: { grid: gridOpts, ticks: { ...tickStyle, maxTicksLimit: 10 }, border: borderStyle },
@@ -472,7 +391,6 @@ export function Stats() {
       });
     }
 
-    // Cleanup
     return () => {
       Chart.getChart(chartSpendYearRef.current!)?.destroy();
       Chart.getChart(chartGenresRef.current!)?.destroy();
@@ -482,9 +400,9 @@ export function Stats() {
     };
   }, [theme]);
 
-const totalShows = concerts.length;
-const totalBands = new Set(concerts.flatMap(c => c.bands).map(b => b.toLowerCase().trim())).size;
-const totalCities = new Set(concerts.map(c => c.city)).size;
+  const totalShows = concerts.length;
+  const totalBands = new Set(concerts.flatMap(c => c.bands).map(b => b.toLowerCase().trim())).size;
+  const totalCities = new Set(concerts.map(c => c.city)).size;
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[var(--theme-bg-primary)] text-[var(--theme-text-primary)] transition-colors">
@@ -507,125 +425,75 @@ const totalCities = new Set(concerts.map(c => c.city)).size;
           </div>
         </div>
 
-        {/* KPIs */}
         <div id="kpi-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8"></div>
 
-        {/* Gasto por ano */}
         <div className="grid grid-cols-1 gap-4 mb-4">
           <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
             <div className="flex justify-between items-baseline mb-5">
-              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">
-                gasto por ano (R$)
-              </span>
-              <span id="total-badge" className="font-['Space_Mono'] text-[8px] tracking-wider px-2 py-[2px] border border-[var(--theme-border)] text-[var(--theme-text-muted)] uppercase">
-                total: —
-              </span>
+              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">gasto por ano (R$)</span>
+              <span id="total-badge" className="font-['Space_Mono'] text-[8px] tracking-wider px-2 py-[2px] border border-[var(--theme-border)] text-[var(--theme-text-muted)] uppercase">total: —</span>
             </div>
-            <div className="h-[200px]">
-              <canvas ref={chartSpendYearRef}></canvas>
-            </div>
+            <div className="h-[200px]"><canvas ref={chartSpendYearRef}></canvas></div>
           </div>
         </div>
 
-        {/* Gêneros + Venues */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
             <div className="flex justify-between items-baseline mb-5">
-              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">
-                gêneros
-              </span>
+              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">gêneros</span>
             </div>
             <div id="genre-legend" className="flex flex-wrap gap-2 mb-4"></div>
-            <div className="h-[220px]">
-              <canvas ref={chartGenresRef}></canvas>
-            </div>
+            <div className="h-[220px]"><canvas ref={chartGenresRef}></canvas></div>
           </div>
-
           <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
             <div className="flex justify-between items-baseline mb-5">
-              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">
-                venues mais visitados
-              </span>
+              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">venues mais visitados</span>
             </div>
-            <div className="h-[260px]">
-              <canvas ref={chartVenuesRef}></canvas>
-            </div>
+            <div className="h-[260px]"><canvas ref={chartVenuesRef}></canvas></div>
           </div>
         </div>
 
-        {/* Bandas + Sazonalidade */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
             <div className="flex justify-between items-baseline mb-5">
-              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">
-                bandas mais vistas
-              </span>
+              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">bandas mais vistas</span>
             </div>
             <div id="bands-ranking" className="flex flex-col gap-2"></div>
           </div>
-
           <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
             <div className="flex justify-between items-baseline mb-5">
-              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">
-                sazonalidade · shows por mês
-              </span>
+              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">sazonalidade · shows por mês</span>
             </div>
-            <div className="h-[220px]">
-              <canvas ref={chartMonthsRef}></canvas>
+            <div className="h-[220px]"><canvas ref={chartMonthsRef}></canvas></div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
+            <div className="flex justify-between items-baseline mb-5">
+              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">heatmap de atividade · ano × mês</span>
+              <span className="font-['Space_Mono'] text-[8px] tracking-wider px-2 py-[2px] border border-[var(--theme-border)] text-[var(--theme-text-muted)] uppercase">1 quadrado = 1 show</span>
+            </div>
+            <div className="overflow-x-auto pb-1">
+              <table id="heatmap" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '3px', tableLayout: 'fixed' }}></table>
             </div>
           </div>
         </div>
 
-        {/* Heatmap */}
         <div className="grid grid-cols-1 gap-4 mb-4">
           <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
             <div className="flex justify-between items-baseline mb-5">
-              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">
-                heatmap de atividade · ano × mês
-              </span>
-              <span className="font-['Space_Mono'] text-[8px] tracking-wider px-2 py-[2px] border border-[var(--theme-border)] text-[var(--theme-text-muted)] uppercase">
-                1 quadrado = 1 show
-              </span>
+              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">gasto acumulado ao longo do tempo</span>
             </div>
-      <div className="overflow-x-auto pb-1">
-  <table
-    id="heatmap"
-    style={{
-      width: '100%',
-      borderCollapse: 'separate',
-      borderSpacing: '3px',
-      tableLayout: 'fixed',
-    }}
-  ></table>
-</div>
-          </div>
-        </div>
-
-        {/* Gasto acumulado */}
-        <div className="grid grid-cols-1 gap-4 mb-4">
-          <div className="bg-[var(--theme-card)] border border-[var(--theme-border)] p-6">
-            <div className="flex justify-between items-baseline mb-5">
-              <span className="font-['Space_Mono'] text-[9px] tracking-[0.25em] text-[var(--theme-text-muted)] uppercase">
-                gasto acumulado ao longo do tempo
-              </span>
-            </div>
-            <div className="h-[180px]">
-              <canvas ref={chartCumulativeRef}></canvas>
-            </div>
+            <div className="h-[180px]"><canvas ref={chartCumulativeRef}></canvas></div>
           </div>
         </div>
       </main>
 
       <style>{`
         @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
