@@ -482,11 +482,9 @@ export function Stats() {
     };
   }, [theme]);
 
-  const totalShows = concerts.length;
-  const totalBands = new Set(
-  concerts.flatMap(c => c.bands).map(b => b.toLowerCase().trim())
-).size;
-  const totalCities = new Set(concerts.map(c => c.city)).size;
+const totalShows = concerts.length;
+const totalBands = new Set(concerts.flatMap(c => c.bands).map(b => b.toLowerCase().trim())).size;
+const totalCities = new Set(concerts.map(c => c.city)).size;
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-[var(--theme-bg-primary)] text-[var(--theme-text-primary)] transition-colors">
