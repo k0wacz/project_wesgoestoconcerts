@@ -10,4 +10,6 @@ export const router = createBrowserRouter([
       { path: "stats", Component: Stats },
     ],
   },
-]);
+], {
+  basename: "/wesgoestoconcerts",
+});
