@@ -193,7 +193,7 @@ export const concerts: Concert[] = [
 
   { 
     tour: "John Wayne em Curitiba 2025",
-    bands: ["John Wayne","Heartlistner","Sufffer","Serena"],
+    bands: ["John Wayne","Heartlistener","Sufffer","Serena"],
     genre: ["metalcore","hardcore"],
     city: "Curitiba-PR",
     date: "24/05/2025",
@@ -257,7 +257,7 @@ export const concerts: Concert[] = [
     genre: ["skate punk","melodic hardcore"],
     city: "Curitiba-PR",
     date: "10/10/2025",
-    flyer: "src//assets/images/flyers/lagwagon_2025.png",
+    flyer: "src/assets/images/flyers/lagwagon_2025.png",
     memory: "vagão de cigarro",
     average_price: "R$ 270,00",
     venue: "Tork n' Roll"
