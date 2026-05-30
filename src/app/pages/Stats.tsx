@@ -12,7 +12,7 @@ const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', '
 // Helpers
 function parsePrice(s: string): number {
   if (!s) return 0;
-  return parseFloat(s.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
+  return parseFloat(s.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
 }
 
 function parseDate(s: string) {
