@@ -587,9 +587,17 @@ export function Stats() {
                 1 quadrado = 1 show
               </span>
             </div>
-            <div className="overflow-x-auto pb-1">
-              <table id="heatmap" className="w-full border-separate" style={{ borderSpacing: '3px' }}></table>
-            </div>
+      <div className="overflow-x-auto pb-1">
+  <table
+    id="heatmap"
+    style={{
+      width: '100%',
+      borderCollapse: 'separate',
+      borderSpacing: '3px',
+      tableLayout: 'fixed',
+    }}
+  ></table>
+</div>
           </div>
         </div>
 
