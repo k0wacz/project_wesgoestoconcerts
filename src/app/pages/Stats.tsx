@@ -350,38 +350,63 @@ export function Stats() {
           };
 
       table.innerHTML = '';
-      // Header
+      
+// Heatmap
+    const allYears = [...new Set(dates.map(d => d.year))].sort((a, b) => a - b);
+    const heatData: Record<string, number> = {};
+    concerts.forEach((s, i) => {
+      const key = `${dates[i].year}-${dates[i].month}`;
+      heatData[key] = (heatData[key] || 0) + 1;
+    });
+
+    const table = document.getElementById('heatmap');
+    if (table) {
+      const mutedText = theme === 'dark' ? '#555' : '#888';
+      const cellBg = theme === 'dark' ? '#141414' : '#f0f0f0';
+      const cellBorder = theme === 'dark' ? '#1a1a1a' : '#e0e0e0';
+      const heatColors = theme === 'dark'
+        ? {
+            level1: { bg: '#1a3300', border: '#243d00' },
+            level2: { bg: '#2d5500', border: '#3a6b00' },
+            level3: { bg: '#4a8800', border: '#5ca800' },
+            level4: { bg: '#6db300', border: ACCENT }
+          }
+        : {
+            level1: { bg: '#d4e87c', border: '#c0db60' },
+            level2: { bg: '#b8d64a', border: '#a8c840' },
+            level3: { bg: '#9fd600', border: '#88b000' },
+            level4: { bg: '#7ab800', border: '#5a9000' }
+          };
+
+      table.innerHTML = '';
+
       const thead = document.createElement('thead');
       const headerRow = document.createElement('tr');
       const emptyTh = document.createElement('th');
-      emptyTh.className = 'text-right pr-3';
+      emptyTh.style.cssText = 'width:36px; padding-right:8px;';
       headerRow.appendChild(emptyTh);
       MONTHS.forEach(m => {
         const th = document.createElement('th');
         th.textContent = m;
-        th.className = 'text-center font-["Space_Mono"] text-[8px] tracking-wider pb-2';
-        th.style.color = mutedText;
+        th.style.cssText = `text-align:center; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.08em; padding-bottom:6px; color:${mutedText}; font-weight:400;`;
         headerRow.appendChild(th);
       });
       thead.appendChild(headerRow);
       table.appendChild(thead);
 
-      // Body
       const tbody = document.createElement('tbody');
       allYears.forEach(y => {
         const tr = document.createElement('tr');
+
         const yearTh = document.createElement('th');
-        yearTh.className = 'text-right pr-3 font-["Space_Mono"] text-[8px] tracking-wider';
-        yearTh.style.color = mutedText;
         yearTh.textContent = String(y);
+        yearTh.style.cssText = `text-align:right; padding-right:8px; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.08em; color:${mutedText}; font-weight:400; white-space:nowrap;`;
         tr.appendChild(yearTh);
+
         for (let m = 1; m <= 12; m++) {
           const td = document.createElement('td');
-          td.className = 'w-8 h-7 rounded-sm text-center text-[9px] text-transparent transition-all cursor-default';
-          td.style.backgroundColor = cellBg;
-          td.style.borderWidth = '1px';
-          td.style.borderStyle = 'solid';
-          td.style.borderColor = cellBorder;
+          td.style.cssText = `height:20px; border-radius:3px; text-align:center; font-size:9px; color:transparent; cursor:default; transition:border-color 0.15s; background:${cellBg}; border:1px solid ${cellBorder};`;
+
           const val = heatData[`${y}-${m}`] || 0;
           if (val > 0) {
             let color = heatColors.level1;
@@ -389,18 +414,17 @@ export function Stats() {
             else if (val >= 3) color = heatColors.level3;
             else if (val >= 2) color = heatColors.level2;
 
-            td.style.backgroundColor = color.bg;
+            td.style.background = color.bg;
             td.style.borderColor = color.border;
-            td.style.color = theme === 'dark' && val >= 4 ? '#0a0a0a' : 'transparent';
-            td.textContent = String(val);
             td.title = `${MONTHS[m - 1]} ${y}: ${val} show${val > 1 ? 's' : ''}`;
+
             td.onmouseenter = () => {
               td.style.borderColor = ACCENT;
               td.style.color = ACCENT;
             };
             td.onmouseleave = () => {
               td.style.borderColor = color.border;
-              td.style.color = theme === 'dark' && val >= 4 ? '#0a0a0a' : 'transparent';
+              td.style.color = 'transparent';
             };
           }
           tr.appendChild(td);
