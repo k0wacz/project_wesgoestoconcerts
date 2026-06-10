@@ -269,7 +269,7 @@ export const concerts: Concert[] = [
     genre: ["skate punk","melodic hardcore", "punk rock"],
     city: "Curitiba-PR",
     date: "27/03/2026",
-    flyer: "assets/images/flyers/we_are_one_tour_2026",
+    flyer: "assets/images/flyers/we_are_one_tour_2026.png",
     memory: "and another one",
     average_price: "R$ 600,00",
     venue: "Piazza Notte"
