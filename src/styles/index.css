@@ -53,3 +53,8 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--theme-accent-dim);
 }
+
+.avatar-pic {
+    height: 100% !important;
+    min-height: max-content !important;
+}
