@@ -135,4 +135,4 @@ Please change the parent <Route path="${P}"> to <Route path="${P==="/"?"*":`${P}
           from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
-      `})]})}const tM=s_([{path:"/",children:[{index:!0,Component:$_},{path:"stats",Component:eM}]}],{basename:"/wesgoestoconcerts"});function nM(){return L.jsx(A_,{children:L.jsx(Tb,{router:tM})})}Uv.createRoot(document.getElementById("root")).render(L.jsx(nM,{}));
+      `})]})}const tM=s_([{path:"/",children:[{index:!0,Component:$_},{path:"stats",Component:eM}]}],{basename:"/"});function nM(){return L.jsx(A_,{children:L.jsx(Tb,{router:tM})})}Uv.createRoot(document.getElementById("root")).render(L.jsx(nM,{}));
