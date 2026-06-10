@@ -93,7 +93,7 @@ export function Stats() {
     const kpis = [
       { label: 'Total gasto', value: `R$ ${Math.round(total).toLocaleString('pt-BR')}`, sub: `em ${yearsSpan} anos` },
       { label: 'Shows', value: concerts.length, sub: `${minYear} → ${maxYear}` },
-      { label: 'Bandas únicas', value: uniqueBands, sub: 'ao vivo' },
+      { label: 'Bandas', value: uniqueBands, sub: 'ao vivo' },
       { label: 'Ticket médio', value: `R$ ${Math.round(avg).toLocaleString('pt-BR')}`, sub: 'por show' },
       { label: 'Show mais caro', value: `R$ ${Math.round(Math.max(...prices)).toLocaleString('pt-BR')}`, sub: concerts[maxIdx].bands[0] },
     ];
