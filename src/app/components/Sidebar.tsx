@@ -15,7 +15,7 @@ export function Sidebar({ totalShows, totalBands, totalCities, activePage = 'fly
     <aside className="w-full lg:w-[280px] bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] p-6 flex flex-col gap-6 border-b lg:border-r lg:border-b-0 border-[var(--theme-border)] overflow-y-auto lg:h-screen lg:sticky lg:top-0 transition-colors">
       <div className="text-3xl font-['Bebas_Neue'] tracking-wider">Concerts</div>
 
-      <div className="w-full rounded-lg overflow-hidden border-2 border-[var(--theme-accent-dim)]">
+      <div className="w-full rounded-lg overflow-hidden border-2 border-[var(--theme-accent-dim)] avatar-pic">
   <ImageWithFallback
       src="https://placecats.com/300/200"
     alt="Wes"
