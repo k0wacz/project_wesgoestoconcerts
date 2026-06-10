@@ -18,7 +18,7 @@ export const concerts: Concert[] = [
     city: "Curitiba-PR",
     date: "12/11/2010",
     flyer: "src/assets/images/flyers/millencolin_2010.png",
-    memory: "onde tudo começou",
+    memory: "",
     average_price: "R$ 60,00",
     venue: "Curitiba Master Hall"
   },
@@ -54,7 +54,7 @@ export const concerts: Concert[] = [
     city: "Florianópolis-SC",
     date: "07/02/2014",
     flyer: "src/assets/images/flyers/offspring_2014.png",
-    memory: "damn",
+    memory: "",
     average_price: "R$ 175",
     venue: "Music Park"
   },
@@ -90,7 +90,7 @@ export const concerts: Concert[] = [
     city: "Curitiba-PR",
     date: "21/04/2018",
     flyer: "src/assets/images/flyers/curitiba_hc_2018.png",
-    memory: "festival com diversas bandas do cenário hardcore nacional",
+    memory: "",
     average_price: "R$ 60,00",
     venue: "Sociedade Abranches"
   },
@@ -102,7 +102,7 @@ export const concerts: Concert[] = [
     city: "Curitiba-PR",
     date: "24/05/2018",
     flyer: "src/assets/images/flyers/lessthanjake_2018.png",
-    memory: "kiwi kiwi kiwi tweet tweet tweet",
+    memory: "",
     average_price: "R$ 93,33",
     venue: "Hermes Bar"
   },
@@ -162,7 +162,7 @@ export const concerts: Concert[] = [
     city: "São Paulo-SP",
     date: "30/11/2024",
     flyer: "src/assets/images/flyers/bmth_2024.png",
-    memory: "landon torres canta muito, courtney rainha, chris imovel em branco timido",
+    memory: "landon torres canta muito, chris imovel em branco timido",
     average_price: "R$ 360,00",
     venue: "Allianz Parque"
   },
@@ -234,7 +234,7 @@ export const concerts: Concert[] = [
     city: "Curitiba-PR",
     date: "12/09/2025",
     flyer: "src/assets/images/flyers/strungout_2025.png",
-    memory: "nunca vi uma casa de show tocando musica",
+    memory: "",
     average_price: "R$ 270,00",
     venue: "Basement Cultural"
   },
@@ -261,7 +261,31 @@ export const concerts: Concert[] = [
     memory: "vagão de cigarro",
     average_price: "R$ 270,00",
     venue: "Tork n' Roll"
-  }
+  },
+
+  {
+    tour: "We Are One Tour 2026",
+    bands: ["Pennywise","Millencolin", "Mute", "The Mönic"],
+    genre: ["skate punk","melodic hardcore", "punk rock"],
+    city: "Curitiba-PR",
+    date: "27/03/2026",
+    flyer: "src/assets/images/flyers/we_are_one_tour_2026",
+    memory: "and another one",
+    average_price: "R$ 600,00",
+    venue: "Piazza Notte"
+  },
+
+  {
+    tour: "Arena Hardcore",
+    bands: ["Dead Fish", "Rancore", "Gloria", "Pense", "Sugar Kane", "Bayside Kings", "Chuva Negra"],
+    genre: ["hardcore", "melodic hardcore", "post-hardcore", "hardcore punk", "punk rock", "skate punk"],
+    city: "Curitiba-PR",
+    date: "28/03/2026",
+    flyer: "src/assets/images/flyers/arena_hardcore_2026.jpg",
+    memory: "",
+    average_price: "R$ 130",
+    venue: "Piazza Notte"
+  },
   
 ];
 
