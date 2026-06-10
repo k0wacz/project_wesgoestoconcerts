@@ -11,5 +11,5 @@ export const router = createBrowserRouter([
     ],
   },
 ], {
-  basename: "/wesgoestoconcerts",
+  basename: "/",
 });
